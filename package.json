@@ -11,10 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bufferutil": "^4.0.2",
-    "express": "^4.17.1",
-    "utf-8-validate": "^5.0.3",
-    "websocket": "^1.0.31",
-    "ws": "^7.4.1"
+    "bufferutil": "^4.0.9",
+    "express": "^4.21.2",
+    "utf-8-validate": "^6.0.5",
+    "websocket": "^1.0.35",
+    "ws": "^8.18.3"
   }
 }
