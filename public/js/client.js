@@ -37,6 +37,51 @@ const txtGameId = document.getElementById("txtGameId");
 const divPlayers = document.getElementById("divPlayers");
 const divBoard = document.getElementById("divBoard");
 
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatLog = document.getElementById("chat-log");
+
+const emojiMap = {
+  ":smile:": "😄",
+  ":heart:": "❤️",
+  ":thumbsup:": "👍",
+  ":laughing:": "😆",
+  ":sob:": "😭",
+  ":angry:": "😡",
+};
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, (c) =>
+    ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    })[c]
+  );
+}
+
+function convertEmojis(str) {
+  return str.replace(/:[a-z_]+:/g, (m) => emojiMap[m] || m);
+}
+
+if (chatForm) {
+  chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const msg = convertEmojis(chatInput.value);
+    ws.send(
+      JSON.stringify({
+        method: "chat",
+        message: msg,
+        nickname:
+          theClient && theClient.nickname ? theClient.nickname : "Player",
+      })
+    );
+    chatInput.value = "";
+  });
+}
+
 // CSS
 let nickname = document.querySelector("#nickname");
 let avatar = document.querySelectorAll(".slideAvatars");
@@ -426,6 +471,16 @@ window.addEventListener("load", (event) => {
 ws.onmessage = (message) => {
   // message.data
   const response = JSON.parse(message.data);
+  if (response.method === "chat") {
+    const nickname = escapeHTML(response.nickname || "Player");
+    const msg = convertEmojis(escapeHTML(response.message || ""));
+    if (chatLog) {
+      const item = document.createElement("li");
+      item.innerHTML = `<strong>${nickname}:</strong> ${msg}`;
+      chatLog.appendChild(item);
+    }
+    return;
+  }
   // connect
   if (response.method === "connect") {
     clientId = response.clientId;
