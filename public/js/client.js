@@ -36,6 +36,9 @@ const btnJoin = document.getElementById("btnJoin");
 const txtGameId = document.getElementById("txtGameId");
 const divPlayers = document.getElementById("divPlayers");
 const divBoard = document.getElementById("divBoard");
+const chatLog = document.getElementById("chat-log");
+const chatInput = document.getElementById("chat-input");
+const chatSend = document.getElementById("chat-send");
 
 // CSS
 let nickname = document.querySelector("#nickname");
@@ -57,6 +60,18 @@ const leaveTable = document.querySelector("#leave-table");
 
 ws.addEventListener("open", () => {
   console.log("We are connected!");
+});
+
+chatSend.addEventListener("click", () => {
+  ws.send(
+    JSON.stringify({
+      method: "chat",
+      gameId,
+      nickname,
+      message: chatInput.value,
+    })
+  );
+  chatInput.value = "";
 });
 
 
@@ -430,6 +445,12 @@ ws.onmessage = (message) => {
   if (response.method === "connect") {
     clientId = response.clientId;
     theClient = response.theClient;
+  }
+
+  if (response.method === "chat") {
+    const entry = document.createElement("div");
+    entry.textContent = `${response.nickname}: ${response.message}`;
+    chatLog.appendChild(entry);
   }
 
   if (response.method === "leave") {
