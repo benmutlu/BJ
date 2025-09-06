@@ -567,29 +567,42 @@ ws.onmessage = (message) => {
 
     // Append users in room html
     for (let i = 0; i < spectators.length; i++) {
-      if (spectators[i].nickname === "") spectators[i].nickname = "Player";
-      $("#users-online-container").append(
-        `
-      <li class="users-list-box">
-        <div class="users-list-info">
-          <div class="user-list-name">` +
-          spectators[i].nickname +
-          `</div>
-          <div>Balance: <span class="users-list-balance">` +
-          spectators[i].balance +
-          `</span></div>
-        </div>
-        <div class="users-list-img">
-          <img src="/imgs/avatars/` +
-          spectators[i].avatar +
-          `.svg" alt="avatar">
-        </div>
-      </li>
-      `
-      );
+      const nickname = spectators[i].nickname || "Player";
+      const balance = parseFloat(spectators[i].balance) || 0;
+
+      const li = document.createElement("li");
+      li.className = "users-list-box";
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "users-list-info";
+
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "user-list-name";
+      nameDiv.textContent = nickname;
       if (spectators[i].clientId === clientId) {
-        $(".user-list-name:eq(" + i + ")").addClass("highlight");
+        nameDiv.classList.add("highlight");
       }
+
+      const balanceDiv = document.createElement("div");
+      balanceDiv.textContent = "Balance: ";
+      const balanceSpan = document.createElement("span");
+      balanceSpan.className = "users-list-balance";
+      balanceSpan.textContent = balance;
+      balanceDiv.appendChild(balanceSpan);
+
+      const imgDiv = document.createElement("div");
+      imgDiv.className = "users-list-img";
+      const img = document.createElement("img");
+      img.alt = "avatar";
+      img.src = "/imgs/avatars/" + spectators[i].avatar + ".svg";
+      imgDiv.appendChild(img);
+
+      infoDiv.appendChild(nameDiv);
+      infoDiv.appendChild(balanceDiv);
+      li.appendChild(infoDiv);
+      li.appendChild(imgDiv);
+
+      document.getElementById("users-online-container").appendChild(li);
     }
   }
 
@@ -601,26 +614,42 @@ ws.onmessage = (message) => {
 
     // Update for players that already are in da game
     if (spectators.length > $("#users-online-container").children().length) {
-      if (newPlayer.nickname === "") newPlayer.nickname = "Player";
-      $("#users-online-container").append(
-        `
-      <li class="users-list-box">
-        <div class="users-list-info">
-          <div class="user-list-name">` +
-          newPlayer.nickname +
-          `</div>
-          <div>Balance: <span class="users-list-balance">` +
-          newPlayer.balance +
-          `</span></div>
-        </div>
-        <div class="users-list-img">
-          <img src="/imgs/avatars/` +
-          newPlayer.avatar +
-          `.svg" alt="avatar">
-        </div>
-      </li>
-      `
-      );
+      const nickname = newPlayer.nickname || "Player";
+      const balance = parseFloat(newPlayer.balance) || 0;
+
+      const li = document.createElement("li");
+      li.className = "users-list-box";
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "users-list-info";
+
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "user-list-name";
+      nameDiv.textContent = nickname;
+      if (newPlayer.clientId === clientId) {
+        nameDiv.classList.add("highlight");
+      }
+
+      const balanceDiv = document.createElement("div");
+      balanceDiv.textContent = "Balance: ";
+      const balanceSpan = document.createElement("span");
+      balanceSpan.className = "users-list-balance";
+      balanceSpan.textContent = balance;
+      balanceDiv.appendChild(balanceSpan);
+
+      const imgDiv = document.createElement("div");
+      imgDiv.className = "users-list-img";
+      const img = document.createElement("img");
+      img.alt = "avatar";
+      img.src = "/imgs/avatars/" + newPlayer.avatar + ".svg";
+      imgDiv.appendChild(img);
+
+      infoDiv.appendChild(nameDiv);
+      infoDiv.appendChild(balanceDiv);
+      li.appendChild(infoDiv);
+      li.appendChild(imgDiv);
+
+      document.getElementById("users-online-container").appendChild(li);
     }
   }
 
