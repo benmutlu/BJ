@@ -3,8 +3,12 @@ const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
 const PORT = process.env.PORT || 8080;
-const WebSocket = require("ws")
-const WEB_URL = process.env.NODE_ENV === "production" ? `https://${process.env.DOMAIN_NAME}/` : `http://localhost:${PORT}/`;
+const WebSocket = require("ws");
+const crypto = require("crypto");
+const WEB_URL =
+  process.env.NODE_ENV === "production"
+    ? `https://${process.env.DOMAIN_NAME}/`
+    : `http://localhost:${PORT}/`;
 
 const wss = new WebSocket.Server({ server:server })
 
@@ -817,23 +821,11 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 });
 
 // Generates unique guid (i.e. unique user ID)
-const guid = () => {
-  const s4 = () =>
-    Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}`;
-};
+const guid = () => crypto.randomUUID();
 
 // Random Part ID
 function partyId() {
-  var result = "";
-  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
+  return crypto.randomUUID();
 }
 
 app.get("/offline", (req, res) => {
