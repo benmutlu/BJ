@@ -412,13 +412,13 @@ function resetGameState() {
 }
 
 window.addEventListener("load", (event) => {
-  if (window.location.href.length - 1 > window.origin.length) {
-    const str2 = window.location.href;
-    getRouteId = str2.substring(str2.length - 6);
-    const payLoadRoute = {
-      method: "getRoute",
-      getRouteId: getRouteId,
-    };
+    if (window.location.href.length - 1 > window.origin.length) {
+      const str2 = window.location.href;
+      getRouteId = str2.split("/").pop();
+      const payLoadRoute = {
+        method: "getRoute",
+        getRouteId: getRouteId,
+      };
     ws.send(JSON.stringify(payLoadRoute));
   }
 });
@@ -528,12 +528,12 @@ ws.onmessage = (message) => {
     player = game.player;
     spectators = game.spectators;
     playerSlotHTML = response.playerSlotHTML;
-    roomId = response.roomId;
+      roomId = response.roomId;
 
-    roomId = gameId.substring(gameId.length - 6);
-    if (offline !== true) {
-      window.history.pushState("game", "Title", "/" + roomId);
-    }
+      roomId = gameId.split("/").pop();
+      if (offline !== true) {
+        window.history.pushState("game", "Title", "/" + roomId);
+      }
   }
 
   // Assigns the "clientId" to "theClient" + some styling
@@ -1428,9 +1428,9 @@ setTimeout(joinByUrl, 200);
 function joinByUrl() {
   // If player has a roomId in his url
   if (window.location.href.length - 1 > window.origin.length) {
-    // Get last 6 values from url
+    // Get roomId from the url path
     const str = window.location.href;
-    roomId = str.substring(str.length - 6);
+    roomId = str.split("/").pop();
     gameId = `${location.origin}/` + roomId;
 
     // To prevent bug at 714
