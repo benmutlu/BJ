@@ -112,6 +112,20 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       return;
     }
 
+    if (result.method === "chat") {
+      const nickname = result.nickname || "Player";
+      const msg = result.message || "";
+      const payLoad = {
+        method: "chat",
+        nickname: nickname,
+        message: msg,
+      };
+      Object.keys(clients).forEach((id) => {
+        clients[id].ws.send(JSON.stringify(payLoad));
+      });
+      return;
+    }
+
     // a user want to create a new game
     if (result.method === "create") {
       const clientId = result.clientId;
