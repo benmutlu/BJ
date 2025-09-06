@@ -30,6 +30,29 @@ let offline = null;
 let HOST = location.origin.replace(/^http/, "ws");
 let ws = new WebSocket(HOST);
 
+// Chat
+function renderChatHistory(history) {
+  const panel =
+    document.getElementById("chat-panel") ||
+    document.getElementById("chat") ||
+    document.getElementById("chat-messages");
+  if (!panel || !Array.isArray(history)) return;
+  panel.innerHTML = "";
+  history.forEach((entry) => {
+    const item = document.createElement("div");
+    if (typeof entry === "string") {
+      item.textContent = entry;
+    } else if (entry && typeof entry === "object") {
+      const author = entry.nickname || entry.user || entry.author;
+      const message = entry.message || entry.text || "";
+      item.textContent = author ? `${author}: ${message}` : message;
+    } else {
+      item.textContent = String(entry);
+    }
+    panel.appendChild(item);
+  });
+}
+
 const btnCreate = document.getElementById("btnCreate");
 const btnOffline = document.getElementById("btnOffline");
 const btnJoin = document.getElementById("btnJoin");
@@ -514,6 +537,7 @@ ws.onmessage = (message) => {
     gameId = response.game.id;
     roomId = response.roomId;
     offline = response.offline;
+    renderChatHistory(response.chat);
 
     if (offline === true) {
       window.history.pushState("offline_page", "Offline Mode", "/");
@@ -528,12 +552,13 @@ ws.onmessage = (message) => {
     player = game.player;
     spectators = game.spectators;
     playerSlotHTML = response.playerSlotHTML;
-      roomId = response.roomId;
+    renderChatHistory(response.chat);
+    roomId = response.roomId;
 
-      roomId = gameId.split("/").pop();
-      if (offline !== true) {
-        window.history.pushState("game", "Title", "/" + roomId);
-      }
+    roomId = gameId.split("/").pop();
+    if (offline !== true) {
+      window.history.pushState("game", "Title", "/" + roomId);
+    }
   }
 
   // Assigns the "clientId" to "theClient" + some styling
