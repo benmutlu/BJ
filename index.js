@@ -751,6 +751,22 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
       });
     }
 
+    if (result.method === "chat") {
+      const { gameId, message, nickname } = result;
+      const game = games[gameId];
+      if (!game) return;
+      if (!game.chat) game.chat = [];
+      const entry = { nickname, message, ts: Date.now() };
+      game.chat.push(entry);
+      [...game.players, ...game.spectators].forEach((c) => {
+        if (clients[c.clientId]) {
+          clients[c.clientId].ws.send(
+            JSON.stringify({ method: "chat", entry })
+          );
+        }
+      });
+    }
+
     if (result.method === "syncGame") {
       const gameId = result.gameId;
       let game = games[gameId];
