@@ -144,6 +144,7 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
           {},
           {},
         ],
+        chat: [],
       };
 
       const payLoad = {
@@ -151,6 +152,7 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
         game: games[gameId],
         roomId: roomId,
         offline: offline,
+        chat: games[gameId].chat || [],
       };
 
       const con = clients[clientId].ws;
@@ -200,6 +202,7 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
         spectators: spectators,
         playerSlotHTML: playerSlotHTML,
         roomId: roomId,
+        chat: game.chat || [],
       };
 
       // loop through all clients and tell them that people has joined
