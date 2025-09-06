@@ -44,7 +44,57 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
   ws.on("open", () => console.log("opened")); // connection || wss
   ws.on("close", () => {
     // connection || wss
-    console.log("closed");
+    const clientId = ws.clientId;
+    console.log("closed", clientId);
+
+    if (clientId && clients[clientId]) {
+      delete clients[clientId];
+    }
+
+    // Remove client from any game they may belong to
+    Object.keys(games).forEach((gameId) => {
+      const game = games[gameId];
+      if (!game) return;
+
+      const playerIndex = game.players.findIndex(
+        (p) => p.clientId === clientId
+      );
+      const spectatorIndex = game.spectators.findIndex(
+        (s) => s.clientId === clientId
+      );
+
+      if (playerIndex === -1 && spectatorIndex === -1) return;
+
+      let theClient = null;
+      if (playerIndex !== -1) {
+        theClient = game.players[playerIndex];
+        game.players.splice(playerIndex, 1);
+      }
+      if (spectatorIndex !== -1) {
+        if (!theClient) theClient = game.spectators[spectatorIndex];
+        game.spectators.splice(spectatorIndex, 1);
+      }
+
+      // Clear any player slot referencing this client
+      game.playerSlotHTML = game.playerSlotHTML.map((id) =>
+        id === clientId ? {} : id
+      );
+
+      // Notify remaining clients about the departure
+      const payLoad = {
+        method: "hasLeft",
+        players: game.players,
+        spectators: game.spectators,
+        theClient: theClient,
+        playerSlotHTML: game.playerSlotHTML,
+      };
+
+      game.spectators.forEach((c) => {
+        if (clients[c.clientId]) {
+          clients[c.clientId].ws.send(JSON.stringify(payLoad));
+        }
+      });
+    });
   });
 
   ws.on("message", (message) => {
@@ -725,6 +775,9 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
   clients[clientId] = {
     ws: ws,
   };
+
+  // keep reference on websocket for easy access on close
+  ws.clientId = clientId;
 
   // The client object
   let theClient = {
