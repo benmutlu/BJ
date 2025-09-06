@@ -49,7 +49,14 @@ wss.on("connection", (ws) => { // wsServer || wss AND request || connection
 
   ws.on("message", (message) => {
     // connection || wss
-    const result = JSON.parse(message);
+    let result;
+    try {
+      result = JSON.parse(message);
+    } catch (err) {
+      console.error("Error parsing message", err);
+      ws.close();
+      return;
+    }
 
     // a user want to create a new game
     if (result.method === "create") {
